@@ -7,7 +7,8 @@ import lombok.ToString;
 @ToString
 @Getter
 @Setter
-public class KreamTradeInfo {
+public class KreamTradeItem {
     private Long product_id;
     private String date_created;
+    private long price;
 }

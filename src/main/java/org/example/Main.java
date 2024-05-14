@@ -13,7 +13,7 @@ public class Main {
         HttpExcuter httpExcuter = new HttpExcuter();
         ObjectMapper mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        String bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzE1NjY5MDk2LCJqdGkiOiIyYmFiNjlmYS1jZTRiLTRhNWEtYjBjNi05ZWU5YWI5ZDk2NjIiLCJ0eXBlIjoiYWNjZXNzIiwiaWRlbnRpdHkiOjczODcwMzQsIm5iZiI6MTcxNTY2OTA5NiwiY3NyZiI6ImRhMGEyNDUyLWM3NzAtNGJhMy04MjE4LWE3ZWI2NGYyNWZmYyIsImV4cCI6MTcxNTY3NjI5NiwidWMiOnsic2FmZSI6dHJ1ZX19._1G5QhagLOC9tlqkdJhXr4uXs_ZEgcbQnbUQRbS8Ztg";
+        String bearerToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJmcmVzaCI6dHJ1ZSwiaWF0IjoxNzE1Njc2NTM1LCJqdGkiOiI2N2QzMWVjZC1jMzkxLTQyMWItOGU1Ni1mZTVkMDMzMDkzMmYiLCJ0eXBlIjoiYWNjZXNzIiwiaWRlbnRpdHkiOjczODcwMzQsIm5iZiI6MTcxNTY3NjUzNSwiY3NyZiI6ImE5YjFjMzlhLTg2OTItNDBiNS04MmVkLTIyOGVjM2M5NTZkOCIsImV4cCI6MTcxNTY4MzczNSwidWMiOnsic2FmZSI6dHJ1ZX19.RVkeuFFiioJif5C-cGLjKw7GbOA5qxHkxE-6g2N3MxA";
         KreamRequestCreator kreamRequestCreator = new KreamRequestCreator(bearerToken);
         KreamApi kreamApi = new KreamApiV1(mapper, kreamRequestCreator, httpExcuter);
         KreamTradeInfoMaker kreamTradeInfoMaker = new KreamTradeInfoMaker(kreamRequestCreator, httpExcuter, mapper);
