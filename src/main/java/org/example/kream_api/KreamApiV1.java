@@ -5,14 +5,11 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.log4j.Log4j2;
-import org.example.kream_api.dto.EndCursorInfo;
+import org.example.http.HttpExcuter;
 import org.example.kream_api.dto.KreamItemDto;
 import org.example.kream_api.dto.KreamParameters;
 
-import java.io.IOException;
-import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -23,10 +20,10 @@ public class KreamApiV1 implements KreamApi{
 
     private final ObjectMapper mapper;
     private final KreamRequestCreator kreamRequestCreator;
-    private final HttpClient httpClient;
+    private final HttpExcuter httpExcuter;
 
-    public KreamApiV1(String bearerToken) {
-        httpClient = HttpClient.newHttpClient();
+    public KreamApiV1(String bearerToken, HttpExcuter httpExcuter) {
+        this.httpExcuter = httpExcuter;
         mapper = new ObjectMapper();
         mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         kreamRequestCreator = new KreamRequestCreator(bearerToken);
@@ -49,7 +46,7 @@ public class KreamApiV1 implements KreamApi{
         List<KreamItemDto> result = new ArrayList<>();
         for(int i = 0; i < count; i++){
             String cursor = String.valueOf(i+1);
-            String responseJson = executeHttp(kreamRequestCreator.createRequestForGettingItemList(cursor));
+            String responseJson = httpExcuter.executeHttp(kreamRequestCreator.createRequestForGettingItemList(cursor));
             result.addAll(toKreamItemDtos(responseJson));
         }
 
@@ -96,7 +93,7 @@ public class KreamApiV1 implements KreamApi{
 
 
     private Long getCounts(HttpRequest request){
-        String responseJson = executeHttp(request);
+        String responseJson = httpExcuter.executeHttp(request);
         return jsonToCounts(responseJson);
     }
 
@@ -109,16 +106,6 @@ public class KreamApiV1 implements KreamApi{
             throw new RuntimeException(e);
         }
         return result;
-    }
-
-    private String executeHttp(HttpRequest request){
-        try {
-            HttpResponse<String> send = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
-            if(send.statusCode() >= 400) throw new IllegalArgumentException("request error");
-            return send.body();
-        } catch (IOException | InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     private void validWantedCount(int wantedCount){
