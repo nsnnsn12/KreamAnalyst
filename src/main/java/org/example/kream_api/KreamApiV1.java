@@ -1,9 +1,9 @@
 package org.example.kream_api;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.log4j.Log4j2;
 import org.example.http.HttpExcuter;
 import org.example.kream_api.dto.KreamItemDto;
@@ -15,19 +15,13 @@ import java.util.Iterator;
 import java.util.List;
 
 @Log4j2
+@RequiredArgsConstructor
 public class KreamApiV1 implements KreamApi{
     private final int PER_PAGE_SIZE = 50;
 
     private final ObjectMapper mapper;
     private final KreamRequestCreator kreamRequestCreator;
     private final HttpExcuter httpExcuter;
-
-    public KreamApiV1(String bearerToken, HttpExcuter httpExcuter) {
-        this.httpExcuter = httpExcuter;
-        mapper = new ObjectMapper();
-        mapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        kreamRequestCreator = new KreamRequestCreator(bearerToken);
-    }
 
 
     @Override
