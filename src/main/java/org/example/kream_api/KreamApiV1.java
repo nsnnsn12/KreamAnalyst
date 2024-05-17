@@ -36,15 +36,37 @@ public class KreamApiV1 implements KreamApi{
         return result;
     }
 
-    private List<KreamItemDto> getPopularItems(int count){
-        List<KreamItemDto> result = new ArrayList<>();
-        for(int i = 0; i < count; i++){
-            String cursor = String.valueOf(i+1);
-            String responseJson = httpExcuter.executeHttp(kreamRequestCreator.createRequestForGettingItemList(cursor));
-            result.addAll(toKreamItemDtos(responseJson));
-        }
+    @Override
+    public Long getTotalSellingCount(Long productId){
+        return getCounts(kreamRequestCreator.createRequestForProductDetail(productId, "asks", KreamParameters.builder().build()));
+    }
 
-        return result;
+    @Override
+    public Long getTotalBuyingCount(Long productId){
+        return getCounts(kreamRequestCreator.createRequestForProductDetail(productId, "bids", KreamParameters.builder().build()));
+    }
+
+    @Override
+    public String login() {
+        HttpRequest requestForLogin = kreamRequestCreator.createRequestForLogin();
+        String responseJson = httpExcuter.executeHttp(requestForLogin);
+        log.info("login responseJson: {}", responseJson);
+        return getBearerToken(responseJson);
+    }
+
+    private String getBearerToken(String json){
+        try {
+            JsonNode root = mapper.readTree(json);
+            JsonNode accessToken = root.get("access_token");
+            return accessToken.asText();
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private List<KreamItemDto> getPopularItems(int cursor){
+        String responseJson = httpExcuter.executeHttp(kreamRequestCreator.createRequestForGettingItemList(String.valueOf(cursor)));
+        return toKreamItemDtos(responseJson);
     }
 
     private List<KreamItemDto> toKreamItemDtos(String json) {
@@ -60,9 +82,6 @@ public class KreamApiV1 implements KreamApi{
                 if(product != null){
                     JsonNode release = product.get("release");
                     KreamItemDto kreamItemDto = mapper.treeToValue(release, KreamItemDto.class);
-                    kreamItemDto.setUrl(getProductURI(kreamItemDto.getId()));
-                    kreamItemDto.setDDaySellingCount(getSellingCount(kreamItemDto));
-                    kreamItemDto.setDDayBuyingCount(getBuyingCount(kreamItemDto));
                     result.add(kreamItemDto);
                     log.info(kreamItemDto);
                 }
@@ -71,18 +90,6 @@ public class KreamApiV1 implements KreamApi{
             throw new RuntimeException(e);
         }
         return result;
-    }
-
-    private String getProductURI(Long productId){
-        return String.format("%s%s", "https://kream.co.kr/products/", productId);
-    }
-
-    private Long getSellingCount(KreamItemDto kreamItemDto){
-        return getCounts(kreamRequestCreator.createRequestForProductDetail(kreamItemDto.getId(), "asks", KreamParameters.builder().build()));
-    }
-
-    private Long getBuyingCount(KreamItemDto kreamItemDto){
-        return getCounts(kreamRequestCreator.createRequestForProductDetail(kreamItemDto.getId(), "bids", KreamParameters.builder().build()));
     }
 
 

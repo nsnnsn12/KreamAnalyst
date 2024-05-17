@@ -3,7 +3,7 @@ package org.example.excel;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
-import org.example.kream_api.dto.KreamItemDto;
+import org.example.service.dto.AnalyzedReport;
 
 import java.io.*;
 import java.util.List;
@@ -29,9 +29,9 @@ public class ExcelMaker {
                                             ,"Weekly 거래량 증감%"};
     private final XSSFWorkbook workbook;
     private final Sheet sheet;
-    private final List<KreamItemDto> items;
+    private final List<AnalyzedReport> items;
 
-    public ExcelMaker(List<KreamItemDto> items){
+    public ExcelMaker(List<AnalyzedReport> items){
         workbook = new XSSFWorkbook();
         sheet = workbook.createSheet();
         this.items = items;
@@ -67,14 +67,14 @@ public class ExcelMaker {
         }
     }
 
-    private void drawBody(Row row, KreamItemDto dto){
-        row.createCell(0).setCellValue(dto.getId());
+    private void drawBody(Row row, AnalyzedReport dto){
+        row.createCell(0).setCellValue(dto.getProductId());
         row.createCell(1).setCellValue(dto.getUrl());
-        row.createCell(2).setCellValue(dto.getTranslated_name());
-        row.createCell(3).setCellValue(dto.getStyle_code());
-        row.createCell(4).setCellValue(dto.getOriginal_price());
-        row.createCell(5).setCellValue(dto.getDate_released());
-        row.createCell(6).setCellValue(dto.getDDaySellingCount());
-        row.createCell(7).setCellValue(dto.getDDayBuyingCount());
+        row.createCell(2).setCellValue(dto.getProductName());
+        row.createCell(3).setCellValue(dto.getModelNo());
+        row.createCell(4).setCellValue(dto.getOriginalPrice());
+        row.createCell(5).setCellValue(dto.getDateReleased());
+        row.createCell(6).setCellValue(dto.getTotalSellingCount());
+        row.createCell(7).setCellValue(dto.getTotalBuyingCount());
     }
 }

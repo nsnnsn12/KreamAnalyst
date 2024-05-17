@@ -6,7 +6,7 @@ import org.example.http.HttpExcuter;
 import org.example.kream_api.KreamApi;
 import org.example.kream_api.KreamApiV1;
 import org.example.kream_api.KreamRequestCreator;
-import org.example.kream_api.KreamTradeInfoMaker;
+import org.example.service.KreamAnalyst;
 import org.example.user.User;
 
 public class Main {
@@ -20,8 +20,11 @@ public class Main {
 
         KreamRequestCreator kreamRequestCreator = new KreamRequestCreator(user);
         KreamApi kreamApi = new KreamApiV1(mapper, kreamRequestCreator, httpExcuter);
-        KreamTradeInfoMaker kreamTradeInfoMaker = new KreamTradeInfoMaker(kreamRequestCreator, httpExcuter, mapper);
-        kreamTradeInfoMaker.getDistanceCount(12831L, "");
+        user.login(kreamApi);
+        KreamAnalyst kreamAnalyst = new KreamAnalyst(kreamApi);
+        kreamAnalyst.analyze(50);
+//        KreamTradeInfoMaker kreamTradeInfoMaker = new KreamTradeInfoMaker(kreamRequestCreator, httpExcuter, mapper);
+//        kreamTradeInfoMaker.getDistanceCount(12831L, "");
 //        List<KreamItemDto> items = kreamApi.getItems(50);
 //        ExcelMaker excelMaker = new ExcelMaker(items);
 //        excelMaker.export();
