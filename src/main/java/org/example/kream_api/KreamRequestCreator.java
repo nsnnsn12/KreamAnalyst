@@ -1,5 +1,7 @@
 package org.example.kream_api;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.core5.net.URIBuilder;
 import org.apache.poi.util.StringUtil;
@@ -9,10 +11,13 @@ import org.example.user.User;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.net.http.HttpRequest;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.stream.Stream;
 
 @RequiredArgsConstructor
 public class KreamRequestCreator {
+    private final ObjectMapper objectMapper = new ObjectMapper();
     private final String ROOT_API_URI = "https://api.kream.co.kr/api/";
     private final String ALL_ITEM_URI = "p/tabs/all/";
     private final String PRODUCT_URI = "p/products/";
@@ -58,6 +63,32 @@ public class KreamRequestCreator {
         }
     }
 
+    public HttpRequest createRequestForLogin(){
+        try {
+            URI uri = new URIBuilder(String.format("%s%s", ROOT_API_URI, LOGIN)).build();
+            String[] headers = Stream.of(DEFAULT_HEADERS, new String[]{"Content-Type", "application/json"}).flatMap(Stream::of).toArray(String[]::new);
+
+            Map<String, String> loginInfo = new HashMap<>();
+            loginInfo.put("email", user.getEmail());
+            loginInfo.put("password", user.getPassword());
+
+            String requestBody = jsonBody(loginInfo);
+            return createPostRequestForKreamApi(uri, headers, requestBody);
+        } catch (URISyntaxException e) {
+            throw new IllegalArgumentException("잘못된 url 입니다.");
+        }
+    }
+
+    private String jsonBody(Map<String, String> map){
+        try {
+            return objectMapper
+                    .writerWithDefaultPrettyPrinter()
+                    .writeValueAsString(map);
+        } catch (JsonProcessingException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 
     private String[] getAuthorizationHeader(){
         return new String[] {AUTHORIZATION_HEADER, String.format("Bearer %s", user.getBearerToken())};
@@ -72,17 +103,12 @@ public class KreamRequestCreator {
                 .build();
     }
 
-    private HttpRequest createPostRequestForKreamApi(URI uri){
+    private HttpRequest createPostRequestForKreamApi(URI uri, String[] headers, String requestBody){
         return HttpRequest
                 .newBuilder()
                 .uri(uri)
-                .header("X-Kream-Web-Request-Secret", "kream-djscjsghdkd")
-                .header("X-Kream-Device-Id", "web;f819c914-93a8-4148-a423-e52763fe173e")
-                .header("X-Kream-Api-Version", "31")
-                .header("X-Kream-Web-Build-Version", "5.5.1")
-                .header("X-Kream-Client-Datetime", "20240514094912+0900")
-                .header("Authorization", String.format("Bearer %s", user.getBearerToken()))
-                .GET()
+                .headers(headers)
+                .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                 .build();
     }
 }
